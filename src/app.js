@@ -14,6 +14,18 @@ app.use(express.urlencoded({extended:true}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
+// import routes
+import userRoutes from "./routes/user.routes.js"
+
+// routes Declaration
+
+// here app.use is a middleware: why b'coz using app.get will surve only one task only for GET
+
+
+app.use("/api/v1/users",userRoutes)
+
+
+
 
 
 export {app}

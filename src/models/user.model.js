@@ -1,7 +1,7 @@
 import mongoose, { Schema, SchemaType } from "mongoose";
 import { Video } from "./video.model";
 import jwt from "jsonwebtoken";
-import bryct from "bcrypt"
+import bcrypt from "bcrypt"
 
 const userSchema = new Schema({
    username: {
@@ -33,7 +33,7 @@ const userSchema = new Schema({
     },
    watchHistory: [
     {
-        type:Schema.types.objectId,
+        type:Schema.Types.objectId,
         ref:"Video"
     }
    ],
@@ -51,10 +51,10 @@ const userSchema = new Schema({
  
 },{timestamps:true})
 
-userSchema.pre("save",function(next){
+userSchema.pre("save",async function(next){
     if(!this.isModified("password")) return next();
-    this.password=bcrypt.hash(this.password,10)
-    (next)
+    this.password= await bcrypt.hash(this.password,10)
+    next();
 })
 
 userSchema.methods.isPasswordCorrect=async function(password){
@@ -62,7 +62,7 @@ userSchema.methods.isPasswordCorrect=async function(password){
 }
 
 userSchema.methods.generateAccessToken=function(){
-   jwt.sign(
+  return  jwt.sign(
     {
         _id:this.id,
         email:this.email,
@@ -76,7 +76,7 @@ userSchema.methods.generateAccessToken=function(){
    )
 }
 userSchema.methods.generateRefreshToken=function(){
-    jwt.sign(
+   return jwt.sign(
     {
         _id:this.id,
        
