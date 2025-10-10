@@ -1,5 +1,5 @@
 import mongoose, { Schema, SchemaType } from "mongoose";
-import { Video } from "./video.model";
+import { Video } from "./video.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
 
@@ -33,7 +33,7 @@ const userSchema = new Schema({
     },
    watchHistory: [
     {
-        type:Schema.Types.objectId,
+        type:Schema.Types.ObjectId,
         ref:"Video"
     }
    ],
@@ -46,7 +46,7 @@ const userSchema = new Schema({
 
    refreshToken:{
     type:String,
-    required:true,
+    // required:true,
    },
  
 },{timestamps:true})
