@@ -1,7 +1,7 @@
 import { asynchandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/apiError.js';
 import { User } from '../models/user.model.js';
-import { uploadCloudinary } from '../utils/cloudinary.js';
+import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/apiResponse.js';
 import jwt from "jsonwebtoken"
 
@@ -177,7 +177,7 @@ const options={
   "user logged out successfully"
  ))
 
-})
+});
 
 const refreshAccessToken =asynchandler(async (req,res)=>{
   const incomingRefreshToken=req.cookies.refreshToken || req.body.refreshToken
@@ -223,10 +223,223 @@ const refreshAccessToken =asynchandler(async (req,res)=>{
     throw new ApiError(400, error?.message || "invalid refresh token ")
   }
 
+});
+
+
+const changePassword=asynchandler(async (req,res)=>{
+
+  const {oldPassword,newPassword,cnfPassword}=req.body;
+
+  if(!(newPassword === cnfPassword)){
+    throw new ApiError(400,"New password and confirm password do not match")
+  }
+
+ const user =await User.findById(req.user?._id)
+
+ if(!user){
+  throw new ApiError(401,"User not found")
+ }
+
+ const isPasswordCorrect=await user.isPasswordCorrect(oldPassword)
+ if(!isPasswordCorrect){
+  throw new ApiError(400,"Old password is incorrect")
+ }
+ if(oldPassword===newPassword){
+  throw new ApiError(403,"New password cannot be same as old password")
+ }
+
+ user.password=newPassword;
+//  await user.save({validateBeforeSave:false})
+ await user.save();
+
+ return res
+ .status(200)
+ .json( new ApiResponse(200,{},"password changed successfully"))
+
+ 
 })
+
+const getCurrentUser=asynchandler(async (req,res)=>{
+  return res
+  .status(200)
+  .json(200,req.user,"current duer fetched successfully")
+})
+
+const updateFullname =asynchandler(async (req,res)=>{
+  // 1.short approach 
+
+  const {fullname}=req.body;
+
+  if(!fullname || fullname.trim()===""){
+    throw new ApiError(403,"fullname not recieved!")
+  }
+
+  const user= await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set :{
+        fullname:fullname.trim()
+      }
+    },
+    {new:true}).select("-password -refreshToken")
+
+
+    if(!user){
+      throw new ApiError(404,"user not found")
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,
+      {user},
+      "fullname updated successfully"))
+
+ 
+
+
+  // 2.long approach 
+    // const {fullname}=req.body
+
+    // if(!fullname || fullname.trim()===""){
+    //   throw new ApiError(400,"full name not recived")
+    // }
+
+    // const user=await User.findById(req.user?._id);
+    // if(!user){
+    //   throw new ApiError(400,"user not found")
+    // }
+
+
+    // user.fullname=fullname.trim()
+    // await user.save()
+
+    // const updateduser=await User.findById(req.user?._id).select("-password -refreshToken")
+
+    // return res
+    // .status(200)
+    // .json({
+    //   statusCode:200,
+    //   data:updateduser,
+    //   message:"user full name updated successfully"
+    // }
+    // )
+    
+})
+
+const updateEmail=asynchandler(async (req,res)=>{
+
+  const {newEmail} =req.body
+
+  if(!newEmail || newEmail.trim()===""){
+    throw new ApiError(401,"new email is required!")
+  }
+
+  const newNormalizedEmail=newEmail.trim().toLowerCase()
+
+ const existedUser=await User.findOne({email:newNormalizedEmail})
+ if(existedUser){
+  if(existedUser.email === req.user.email){
+    throw new ApiError(400,"Your new email cannot be the same as your current one.")
+  }else{
+    throw new ApiError(402,"this email is already existed,try new!")
+  }
+ }
+
+ const updatedUser=await User.findByIdAndUpdate(
+  req.user?._id,
+  {
+    $set:{
+      email:newNormalizedEmail
+    }
+  },
+  {new:true}
+ ).select("-password -refreshToken")
+
+ return res
+ .status(200)
+ .json(new ApiResponse (200,{updatedUser},"your email updated succesfully !"))
+
+
+})
+
+
+const updateAvatar=asynchandler(async (req,res)=>{
+ 
+  const avatarlocalPath=req.file?.path
+
+  if(!avatarlocalPath){
+    throw new ApiError(400,"Avatar file not uploaded");
+  }
+
+  const avatar=await uploadOnCloudinary(avatarlocalPath)
+
+  if(!avatar.url){
+    throw new ApiError(402,"error while uploading the avatar file !")
+  }
+
+  const updatedUser=await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set:{
+        avatar:avatar.url
+      }
+    },
+    {new :true }
+  ).select("-password -refreshToken")
+
+  return res
+  .status(200)
+  .json(new ApiResponse(
+    200,
+    updatedUser,
+    "Avatar is updated succesfully !"))
+
+
+})
+
+const updateCoverImg=asynchandler(async (req,res)=>{
+  const coverImageLocalPath=req.file?.path
+
+  if(!coverImageLocalPath){
+    throw new ApiError(400,"cover image not uploaded")
+
+  }
+
+  const coverImage=await uploadOnCloudinary(coverImageLocalPath)
+
+  if(!coverImage.url){
+    throw new ApiError(500,"error while uploading the cover image")
+  }
+
+  const updatedUser=await User.findByIdAndUpdate(req.user?._id,
+    {
+      $set:{
+        coverImage:coverImage.url
+      }
+    },{new:true}
+  ).select("-password -refreshToken")
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(
+      200,
+      updatedUser,
+      "cover image updated successfully!"
+    )
+  )
+})
+
+
+
 
 export { registerUser,
   loginUser,
   logoutUser,
-  refreshAccessToken
+  refreshAccessToken,
+  changePassword,getCurrentUser,
+  updateFullname,
+  updateEmail,
+  updateAvatar,
+  updateCoverImg
  };
