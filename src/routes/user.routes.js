@@ -12,8 +12,9 @@ import {
   updateCoverImg,
   getUserChannelProfile,
   getWatchHistory,
-  uploadVideo,
+  
 } from '../controller/user.controller.js';
+import { uploadVideo } from '../controller/video.controller.js';
 import { upload } from '../middleware/multer.middleware.js';
 import { verifyJwt } from '../middleware/auth.middleware.js';
 
@@ -51,17 +52,16 @@ router.route('/cover-image').patch(verifyJwt, upload.single('coverImage'), updat
 router.route('/c/:username').get(verifyJwt, getUserChannelProfile);
 router.route('/history').post(verifyJwt, getWatchHistory);
 
-router.route("/upload-video").post(verifyJwt,
+router.route('/upload-video').post(
+  verifyJwt,
   upload.fields([
-    {name:"videoFile",
-      maxCount:1
-    },
+    { name: 'videoFile', maxCount: 1 },
     {
-      name:"thumbnail",
-      maxCount:1
-    }
+      name: 'thumbnail',
+      maxCount: 1,
+    },
   ]),
   uploadVideo
-)
+);
 
 export default router;

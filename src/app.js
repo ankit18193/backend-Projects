@@ -16,6 +16,8 @@ app.use(cookieParser())
 
 // import routes
 import userRoutes from "./routes/user.routes.js"
+import likeRoutes from "./routes/like.routes.js"
+import dislikeRoutes from "./routes/dislike.routes.js"
 
 // routes Declaration
 
@@ -23,6 +25,8 @@ import userRoutes from "./routes/user.routes.js"
 
 
 app.use("/api/v1/users",userRoutes)
+app.use("/api/v1/likes",likeRoutes)
+app.use("/api/v1/dislikes",dislikeRoutes)
 
 
 

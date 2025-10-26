@@ -5,12 +5,12 @@ import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/apiResponse.js';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import ffprobeStatic from "ffprobe-static"
+import ffprobeStatic from 'ffprobe-static';
 import ffmpeg from 'fluent-ffmpeg';
 import { Video } from '../models/video.model.js';
 import { response } from 'express';
 
-ffmpeg.setFfprobePath(ffprobeStatic.path)
+
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -491,9 +491,9 @@ const getWatchHistory = asynchandler(async (req, res) => {
           },
           {
             $addFields: {
-              owner:{
-                $first: '$owner'
-              }
+              owner: {
+                $first: '$owner',
+              },
             },
           },
         ],
@@ -502,70 +502,9 @@ const getWatchHistory = asynchandler(async (req, res) => {
   ]);
 
   return res
-  .status(200)
-  .json(
-    new ApiResponse(
-      200,
-      user[0].watchHistory,
-      "watch history fetched successfully !"
-    )
-  )
-
-
+    .status(200)
+    .json(new ApiResponse(200, user[0].watchHistory, 'watch history fetched successfully !'));
 });
-
-
-const uploadVideo=asynchandler(async (req,res)=>{
-  const {title,description}=req.body 
-  const videoFilePath=req.files?.videoFile[0].path
-  const thumbnailPath=req.files?.thumbnail[0].path
-
-  if(!title || !description || !videoFilePath || !thumbnailPath){
-    throw new ApiError(400,"All feilds are require!")
-  }
-
- 
-
-    try {
-      const getDuration=(filepath)=>
-        new Promise((resolve,reject)=>{
-          ffmpeg.ffprobe(filepath,(err,metadata)=>{
-            if(err) reject(err)
-              else resolve(Math.round(metadata.format.duration))
-          })
-        })
-  
-        const duration=await getDuration(videoFilePath)
-  
-        const newVideo=new Video({
-          videoFile:videoFilePath,
-          thumbnail:thumbnailPath,
-          title,
-          description,
-          duration,
-          owner:req.user?._id
-        })
-  
-        await newVideo.save();
-  
-        return res
-        .status(201)
-        .json(new ApiResponse(
-          201,
-          {newVideo},
-          "video Uploaded successfully!"
-        ))
-    } catch (error) {
-      console.error(error)
-      throw new ApiError(500,"video uploading failed,")
-      
-    }
-    
-  
-
-   
-
-})
 
 
 
@@ -582,6 +521,5 @@ export {
   updateCoverImg,
   getUserChannelProfile,
   getWatchHistory,
-  uploadVideo,
   
 };

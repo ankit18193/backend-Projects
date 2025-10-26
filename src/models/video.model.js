@@ -34,77 +34,10 @@ const videoSchema = new Schema(
         default: 0,
       },
     
-    likes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
-    disLikes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
+    
+    
 
-    comment: [
-      {
-        user: {
-          type: Schema.Types.ObjectId,
-          ref: 'User',
-        },
-        text: {
-          type: String,
-          required: true,
-        },
-        likes: [
-          {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-          },
-        ],
-        disLikes: [
-          {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-          },
-        ],
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-
-        replies: [
-          {
-            user: {
-              type: Schema.Types.ObjectId,
-              ref: 'User',
-            },
-            text: {
-              type: String,
-              required: true,
-            },
-            likes: [
-              {
-                type: Schema.Types.ObjectId,
-                ref: 'User',
-              },
-            ],
-            disLikes: [
-              {
-                type: Schema.Types.ObjectId,
-                ref: 'User',
-              },
-            ],
-            createdAt: {
-              type: Date,
-              default: Date.now,
-            },
-            replies: [],
-          },
-        ],
-      },
-    ],
+   
 
     isPublished: {
       type: Boolean,
