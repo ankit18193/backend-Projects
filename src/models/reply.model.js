@@ -21,7 +21,8 @@ const replySchema=new Schema({
     content:{
         type:String,
         required:true,
-    }
+    },
+   
    
 
 
