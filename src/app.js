@@ -18,6 +18,8 @@ app.use(cookieParser())
 import userRoutes from "./routes/user.routes.js"
 import likeRoutes from "./routes/like.routes.js"
 import dislikeRoutes from "./routes/dislike.routes.js"
+import commentRoutes from "./routes/comments.routes.js"
+import replyRoutes from "./routes/reply.routes.js"
 
 // routes Declaration
 
@@ -27,6 +29,9 @@ import dislikeRoutes from "./routes/dislike.routes.js"
 app.use("/api/v1/users",userRoutes)
 app.use("/api/v1/likes",likeRoutes)
 app.use("/api/v1/dislikes",dislikeRoutes)
+app.use("/api/v1/comments",commentRoutes)
+app.use("/api/v1/replies",replyRoutes)
+
 
 
 
